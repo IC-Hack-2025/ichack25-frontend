@@ -16,3 +16,9 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
         monospace;
 }
+
+.blur-background {
+    filter: blur(5px); /* Adjust blur intensity */
+    pointer-events: none; /* Prevent interactions with blurred elements */
+    transition: filter 0.3s ease; /* Smooth transition */
+}
