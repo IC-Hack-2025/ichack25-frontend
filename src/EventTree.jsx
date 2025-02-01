@@ -1,5 +1,5 @@
 import ELK from "elkjs/lib/elk.bundled.js";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -7,6 +7,8 @@ import {
   applyNodeChanges,
   applyEdgeChanges,
 } from "@xyflow/react";
+
+import { useReactFlow } from "@xyflow/react";
 
 import EventContentNode from "./EventContentNode.jsx";
 import { initialEdges, initialNodes } from "./nodes.jsx";
@@ -25,6 +27,8 @@ const defaultOptions = {
 const LayoutFlow = () => {
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
+  const [date, setDate] = useState(0);
+  const e = useReactFlow();
 
   const onNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -58,18 +62,35 @@ const LayoutFlow = () => {
           node.position.y < minNode.position.y ? node : minNode,
         newChildren[0]
       );
-      const centrePos = window.innerWidth / 2 - minYNode.width / 2;
-      const xDiff = minYNode.position.x - centrePos;
+      const centrePosX = window.innerWidth / 2 - minYNode.width / 2;
+      const yDiff = minYNode.position.y;
+      const xDiff = minYNode.position.x - centrePosX;
       let newChildren2 = newChildren.map((node) => {
         let x = {
           ...node,
-          position: { x: node.x - xDiff, y: node.y },
+          position: { x: node.x - xDiff, y: node.y - yDiff },
         };
         return x;
       });
-
+      e.setViewport({ x: 0, y: 0 });
       setNodes(newChildren2);
     });
+  };
+
+  const findCenterNode = () => {
+    const centerY = -1 * e.getViewport().y + window.innerHeight / 2;
+
+    const centerNode = nodes.reduce((closestNode, node) => {
+      const nodeCenterY = node.position.y + node.measured.height / 2;
+      const closestNodeCenterY =
+        closestNode.position.y + closestNode.measured.height / 2;
+      return Math.abs(nodeCenterY - centerY) <
+        Math.abs(closestNodeCenterY - centerY)
+        ? node
+        : closestNode;
+    }, nodes[0]);
+
+    setDate(centerNode.data.label);
   };
 
   return (
@@ -77,15 +98,18 @@ const LayoutFlow = () => {
       <button onClick={() => getLayoutedElements({ "elk.direction": "DOWN" })}>
         Vertical layout
       </button>
+      <h1>{date}</h1>
       <ReactFlow
         nodes={nodes}
         edges={edges}
+        onMove={findCenterNode}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         key="1"
         zoomOnScroll={false}
         panOnScroll
+        zoomOnDoubleClick={false}
       ></ReactFlow>
     </>
   );
