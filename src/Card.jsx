@@ -29,7 +29,7 @@ export function Card({ card }) {
 
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [active]);
+    }, [active, appWrapper.classList]);
 
     useOutsideClick(ref, () => setActive(null));
 
