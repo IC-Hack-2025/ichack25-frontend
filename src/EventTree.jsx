@@ -18,7 +18,7 @@ const nodeTypes = { eventContent: EventContentNode };
 
 const defaultOptions = {
   "elk.algorithm": "layered",
-  "elk.layered.spacing.nodeNodeBetweenLayers": 150,
+  "elk.layered.spacing.nodeNodeBetweenLayers": 100,
   "elk.spacing.nodeNode": 80,
 };
 
@@ -53,8 +53,22 @@ const LayoutFlow = () => {
         let x = { ...node, position: { x: node.x, y: node.y } };
         return x;
       });
+      const minYNode = newChildren.reduce(
+        (minNode, node) =>
+          node.position.y < minNode.position.y ? node : minNode,
+        newChildren[0]
+      );
+      const centrePos = window.innerWidth / 2 - minYNode.width / 2;
+      const xDiff = minYNode.position.x - centrePos;
+      let newChildren2 = newChildren.map((node) => {
+        let x = {
+          ...node,
+          position: { x: node.x - xDiff, y: node.y },
+        };
+        return x;
+      });
 
-      setNodes(newChildren);
+      setNodes(newChildren2);
     });
   };
 
