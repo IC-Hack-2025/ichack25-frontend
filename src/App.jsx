@@ -1,25 +1,18 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import EventTree from "./EventTree";
 
 function App() {
-    return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                    Edit <code>src/App.jsx</code> and save to reload.
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </a>
-            </header>
-        </div>
-    );
+  return (
+    <div className="App">
+      <form>
+        <input type="text" placeholder="Enter prompt" />
+        <input type="submit" value="Submit" />
+      </form>
+      <div style={{ height: "90vh", width: "100%" }}>
+        <EventTree />
+      </div>
+    </div>
+  );
 }
 
 export default App;
