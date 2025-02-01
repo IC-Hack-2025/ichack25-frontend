@@ -1,4 +1,5 @@
 import "./App.css";
+import { Card } from "./Card";
 import EventTree from "./EventTree";
 
 function App() {

@@ -18,7 +18,7 @@ const nodeTypes = { eventContent: EventContentNode };
 
 const defaultOptions = {
   "elk.algorithm": "layered",
-  "elk.layered.spacing.nodeNodeBetweenLayers": 100,
+  "elk.layered.spacing.nodeNodeBetweenLayers": 150,
   "elk.spacing.nodeNode": 80,
 };
 
@@ -69,7 +69,6 @@ const LayoutFlow = () => {
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        fitView
         key="1"
         zoomOnScroll={false}
         panOnScroll
