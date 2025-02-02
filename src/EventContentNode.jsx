@@ -1,5 +1,5 @@
 import React from "react";
-import { Handle } from "@xyflow/react";
+import { Handle, ReactFlowProvider } from "@xyflow/react";
 import { Card } from "./Card";
 
 const card = {
@@ -46,12 +46,24 @@ const card = {
   },
 };
 
-const EventContentNode = () => {
+const EventContentNode = ({ data }) => {
   return (
     <>
-      <Handle type="target" position="top" style={{ background: "#555" }} />
-      <Card card={card} />
-      <Handle type="source" position="bottom" style={{ background: "#555" }} />
+      <ReactFlowProvider>
+        <Handle
+          id="a"
+          type="target"
+          position="top"
+          style={{ background: "#555" }}
+        />
+        <Card card={data} />
+        <Handle
+          id="b"
+          type="source"
+          position="bottom"
+          style={{ background: "#555" }}
+        />
+      </ReactFlowProvider>
     </>
   );
 };
