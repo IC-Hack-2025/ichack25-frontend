@@ -46,7 +46,7 @@ const card = {
   },
 };
 
-const EventContentNode = ({ data }) => {
+const EventContentNode = ({ data, id }) => {
   return (
     <>
       <ReactFlowProvider>
@@ -56,7 +56,7 @@ const EventContentNode = ({ data }) => {
           position="top"
           style={{ background: "#555" }}
         />
-        <Card card={data} />
+        <Card card={data} id={id} />
         <Handle
           id="b"
           type="source"

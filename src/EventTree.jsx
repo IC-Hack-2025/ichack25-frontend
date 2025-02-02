@@ -90,7 +90,7 @@ const EventTree = () => {
           id: node.id.toString(),
           type: "eventContent",
           data: {
-            description: node.date_start,
+            description: node.date_start.substring(0, 10),
             title: node.heading,
             srcs: [
               node.main_image_url,
@@ -100,6 +100,9 @@ const EventTree = () => {
             ],
             ctaText: "Find out more",
             ctaLink: node.link,
+            misconceptions: node.contents.filter(
+              (content) => content.content_type == "misconception"
+            ),
             content: () => {
               return (
                 <p>

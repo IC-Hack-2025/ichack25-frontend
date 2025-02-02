@@ -11,8 +11,8 @@ import { Carousel } from "./Carousel";
 import { createPortal } from "react-dom";
 import { socket } from ".";
 
-export function Card({ card }) {
-  console.log(card.srcs);
+export function Card({ card, id: cardId }) {
+  console.log(card.misconceptions);
   const [active, setActive] = useState(null);
   const id = useId();
   const ref = useRef(null);
@@ -73,7 +73,7 @@ export function Card({ card }) {
                 <motion.div
                   layoutId={`card-${active.title}-${id}`}
                   ref={ref}
-                  className="w-full max-w-[30vw] h-[70vh] flex flex-col bg-white dark:bg-neutral-900 sm:rounded-3xl"
+                  className="w-full max-w-[30vw] h-[70vh] flex flex-col bg-white dark:bg-neutral-900 sm:rounded-3xl relative"
                 >
                   <div className="relative overflow-hidden object-cover object-center">
                     <Carousel
@@ -104,7 +104,7 @@ export function Card({ card }) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => {
-                          socket.emit("extend_timeline", card.id);
+                          socket.emit("extend_timeline", parseInt(cardId, 10));
                           setActive(false);
                         }}
                         className="px-4 py-3 text-sm rounded-full font-bold bg-green-500 text-white"
@@ -124,10 +124,34 @@ export function Card({ card }) {
                         {typeof active.content === "function"
                           ? active.content()
                           : active.content}
+                        <h4 className="font-semibold text-lg mb-2">
+                          Common Misconceptions
+                        </h4>
+                        <ul className="list-disc pl-5 space-y-2 w-full">
+                          {card.misconceptions.map((misconception, index) => (
+                            <li
+                              key={index}
+                              className="bg-red-100 dark:bg-yellow-900 p-2 rounded"
+                            >
+                              {misconception.content}
+                            </li>
+                          ))}
+                        </ul>
                       </motion.div>
                     </div>
                     <div className="h-10"></div>
                   </div>
+                  <motion.button
+                    key={`button-${active.title}-${id}`}
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex absolute top-2 right-2 items-center justify-center bg-white rounded-full h-6 w-6"
+                    onClick={() => setActive(null)}
+                  >
+                    <CloseIcon />
+                  </motion.button>
                 </motion.div>
               </div>,
               document.getElementById("portal-root")
@@ -165,6 +189,19 @@ export function Card({ card }) {
                 className="text-neutral-600 dark:text-neutral-400 text-center md:text-left text-base"
               >
                 {card.description}
+                {card.misconceptions.length > 0 && (
+                  <div className="absolute bottom-2 right-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="red"
+                      width="32"
+                      height="32"
+                    >
+                      <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+                    </svg>
+                  </div>
+                )}
               </motion.p>
             </div>
           </div>
