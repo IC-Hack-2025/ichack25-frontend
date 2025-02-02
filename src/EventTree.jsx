@@ -1,124 +1,86 @@
-import ELK from "elkjs/lib/elk.bundled.js";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ReactFlow,
-  ReactFlowProvider,
-  Panel,
-  applyNodeChanges,
-  applyEdgeChanges,
-} from "@xyflow/react";
+import React, { useEffect, useState } from 'react';
+import ReactFlow, { ReactFlowProvider, Controls } from 'reactflow';
+import dagre from 'dagre';
+import 'reactflow/dist/style.css';
 
-import { useReactFlow } from "@xyflow/react";
+// Set the default node dimensions
+const NODE_WIDTH = 172;
+const NODE_HEIGHT = 36;
 
-import EventContentNode from "./EventContentNode.jsx";
-import { initialEdges, initialNodes } from "./nodes.jsx";
-import "@xyflow/react/dist/style.css";
+/**
+ * Given arrays of nodes and edges, compute their layout using dagre.
+ *
+ * @param {Array} nodes - Array of node objects for ReactFlow.
+ * @param {Array} edges - Array of edge objects for ReactFlow.
+ * @param {string} direction - Graph direction: 'TB' (top-bottom) or 'LR' (left-right).
+ * @returns {Object} layouted elements: { nodes: [...], edges: [...] }
+ */
+const getLayoutedElements = (nodes, edges, direction = 'TB') => {
+  // Create a new directed graph
+  const dagreGraph = new dagre.graphlib.Graph();
 
-const elk = new ELK();
+  // Set an object for the default edge label (required by dagre)
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const nodeTypes = { eventContent: EventContentNode };
+  // Set the graph direction (e.g., top-to-bottom)
+  dagreGraph.setGraph({ rankdir: direction });
 
-const defaultOptions = {
-  "elk.algorithm": "layered",
-  "elk.layered.spacing.nodeNodeBetweenLayers": 100,
-  "elk.spacing.nodeNode": 80,
-};
+  // Add nodes to the dagre graph. You must provide node dimensions.
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
+  });
 
-const LayoutFlow = () => {
-  const [nodes, setNodes] = useState(initialNodes);
-  const [edges, setEdges] = useState(initialEdges);
-  const [date, setDate] = useState(0);
-  const e = useReactFlow();
+  // Add edges to the dagre graph.
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
 
-  const onNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    []
-  );
-  const onEdgesChange = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    []
-  );
+  // Compute the layout
+  dagre.layout(dagreGraph);
 
-  const getLayoutedElements = (options) => {
-    const layoutOptions = { ...defaultOptions, ...options };
-    const graph = {
-      id: "root",
-      layoutOptions: layoutOptions,
-      children: nodes.map((node) => ({
-        ...node,
-        width: node.measured.width,
-        height: node.measured.height,
-      })),
-      edges: [...edges],
+  // Update each ReactFlow node with the computed position.
+  const layoutedNodes = nodes.map((node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    // Set these positions so that edges are rendered correctly.
+    node.targetPosition = 'top';
+    node.sourcePosition = 'bottom';
+
+    // Dagre gives the center position of each node so adjust by half the width and height.
+    node.position = {
+      x: nodeWithPosition.x - NODE_WIDTH / 2,
+      y: nodeWithPosition.y - NODE_HEIGHT / 2,
     };
 
-    elk.layout(graph).then(({ children }) => {
-      let newChildren = children.map((node) => {
-        let x = { ...node, position: { x: node.x, y: node.y } };
-        return x;
-      });
-      const minYNode = newChildren.reduce(
-        (minNode, node) =>
-          node.position.y < minNode.position.y ? node : minNode,
-        newChildren[0]
-      );
-      const centrePosX = window.innerWidth / 2 - minYNode.width / 2;
-      const yDiff = minYNode.position.y;
-      const xDiff = minYNode.position.x - centrePosX;
-      let newChildren2 = newChildren.map((node) => {
-        let x = {
-          ...node,
-          position: { x: node.x - xDiff, y: node.y - yDiff },
-        };
-        return x;
-      });
-      e.setViewport({ x: 0, y: 0 });
-      setNodes(newChildren2);
-    });
-  };
+    return node;
+  });
 
-  const findCenterNode = () => {
-    const centerY = -1 * e.getViewport().y + window.innerHeight / 2;
+  return { nodes: layoutedNodes, edges };
+};
 
-    const centerNode = nodes.reduce((closestNode, node) => {
-      const nodeCenterY = node.position.y + node.measured.height / 2;
-      const closestNodeCenterY =
-        closestNode.position.y + closestNode.measured.height / 2;
-      return Math.abs(nodeCenterY - centerY) <
-        Math.abs(closestNodeCenterY - centerY)
-        ? node
-        : closestNode;
-    }, nodes[0]);
+// Define some initial nodes and edges.
+const initialNodes = [
+  { id: '1', data: { label: 'Node 1' }, position: { x: 0, y: 0 } },
+  { id: '2', data: { label: 'Node 2' }, position: { x: 0, y: 0 } },
+  { id: '3', data: { label: 'Node 3' }, position: { x: 0, y: 0 } },
+];
 
-    setDate(centerNode.data.label);
-  };
+const initialEdges = [
+  { id: 'e1-2', source: '1', target: '2', animated: true },
+  { id: 'e2-3', source: '2', target: '3' },
+];
 
+const EventTree = ({ nodes, edges }) => {
+  const layouted = getLayoutedElements(nodes, edges);
+  
   return (
-    <>
-      <button onClick={() => getLayoutedElements({ "elk.direction": "DOWN" })}>
-        Vertical layout
-      </button>
-      <h1>{date}</h1>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onMove={findCenterNode}
-        nodeTypes={nodeTypes}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        key="1"
-        zoomOnScroll={false}
-        panOnScroll
-        zoomOnDoubleClick={false}
-      ></ReactFlow>
-    </>
+    <ReactFlowProvider>
+      <div style={{ height: '100vh' }}>
+        <ReactFlow nodes={layouted.nodes} edges={layouted.edges} fitView>
+          <Controls />
+        </ReactFlow>
+      </div>
+    </ReactFlowProvider>
   );
 };
 
-export default function () {
-  return (
-    <ReactFlowProvider>
-      <LayoutFlow />
-    </ReactFlowProvider>
-  );
-}
+export default EventTree;

@@ -2,6 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
+import { io } from "socket.io-client";
+
+export const socket = io("localhost:5000");
 
 // Create a new DOM node for the portal
 const portalRoot = document.createElement("div");

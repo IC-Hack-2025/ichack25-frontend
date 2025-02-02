@@ -189,7 +189,7 @@ export function Input({
   const handleSubmit = (e) => {
     e.preventDefault();
     vanishAndSubmit();
-    onSubmit && onSubmit(e);
+    onSubmit(value);
   };
   return (
     (<form
