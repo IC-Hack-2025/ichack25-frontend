@@ -67,7 +67,7 @@ const Slide = ({ src, index, current, handleSlideClick, handlePreviousClick, han
             opacity: current === index ? 1 : 0.5,
           }}
           alt={`Slide ${index + 1}`}
-          src={src || "/placeholder.svg"}
+          src={src}
           onLoad={imageLoaded}
           loading="eager"
           decoding="sync"
