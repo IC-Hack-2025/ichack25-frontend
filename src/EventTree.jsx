@@ -10,6 +10,9 @@ import EventContentNode from "./EventContentNode";
 import "reactflow/dist/style.css";
 import { socket } from "./";
 
+const DEFAULT_IMAGE =
+  "https://static.vecteezy.com/system/resources/previews/004/639/366/non_2x/error-404-not-found-text-design-vector.jpg";
+
 // Set the default node dimensions
 const NODE_WIDTH = 172;
 const NODE_HEIGHT = 36;

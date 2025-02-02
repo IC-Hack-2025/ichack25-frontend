@@ -14,8 +14,8 @@ portalRoot.id = "portal-root";
 document.body.appendChild(portalRoot);
 
 function PortalWrapper({ children }) {
-  const portal_container = document.getElementById("portal-root");
-  return createPortal(children, portal_container);
+    const portal_container = document.getElementById("portal-root");
+    return createPortal(children, portal_container);
 }
 
 // Create a wrapper element for the App
@@ -26,10 +26,10 @@ document.body.appendChild(appWrapper);
 // Render the app inside the wrapper
 const root = ReactDOM.createRoot(appWrapper);
 root.render(
-  <>
-    <App />
-    <ReactFlowProvider>
-      <PortalWrapper />
-    </ReactFlowProvider>
-  </>
+    <>
+        <App />
+        <ReactFlowProvider>
+            <PortalWrapper />
+        </ReactFlowProvider>
+    </>
 );

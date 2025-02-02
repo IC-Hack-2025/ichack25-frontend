@@ -11,6 +11,9 @@ import { Carousel } from "./Carousel";
 import { createPortal } from "react-dom";
 import { socket } from ".";
 
+const DEFAULT_IMAGE =
+  "https://static.vecteezy.com/system/resources/previews/004/639/366/non_2x/error-404-not-found-text-design-vector.jpg";
+
 export function Card({ card, id: cardId }) {
   console.log(card.misconceptions);
   const [active, setActive] = useState(null);
@@ -73,11 +76,13 @@ export function Card({ card, id: cardId }) {
                 <motion.div
                   layoutId={`card-${active.title}-${id}`}
                   ref={ref}
-                  className="w-full max-w-[30vw] h-[70vh] flex flex-col bg-white dark:bg-neutral-900 sm:rounded-3xl relative"
+                  className="w-full max-w-[30vw] h-[70vh] flex flex-col bg-white dark:bg-neutral-900 sm:rounded-3xl"
                 >
                   <div className="relative overflow-hidden object-cover object-center">
                     <Carousel
-                      slides={active.srcs.map((src) => src.image_url)}
+                      slides={active.srcs.map(
+                        (src) => src?.image_url ?? DEFAULT_IMAGE
+                      )}
                     />
                   </div>
 
